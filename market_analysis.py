@@ -56,23 +56,17 @@ def analyze_price_trends(market_data, window_sizes=[4, 8, 12], threshold=0.05):
     Analyze sustained price trends over different time windows
     by looking for consistent price movements that might indicate
     meaningful market trends rather than just noise.
-    """
-
-    print("Starting analysis with data shape:", market_data.shape)    #NEW
-    print("Data date range:", market_data.index.min(), "to", market_data.index.max())    #NEW
+    """  
     trend_analysis = {}
     
-    for ticker in market_data.columns:
-        print(f"Processing ticker: {ticker}")    #NEW
+    for ticker in market_data.columns:    
         try:
-            ticker_data = market_data[ticker].fillna(method='ffill')
-            print(f"Ticker data shape: {ticker_data.shape}")    #NEW
+            ticker_data = market_data[ticker].fillna(method='ffill')    
             trends = {}
             
             for window in window_sizes:
                 # Convert window from weeks to trading days
-                window_days = window * 5  # Assuming 5 trading days per week
-                print(f"Processing window size: {window} weeks ({window_days} days)")  #NEW
+                window_days = window * 5  # Assuming 5 trading days per week  
                 
                 # Calculate rolling mean
                 rolling_mean = ticker_data.rolling(window=window_days).mean()
@@ -92,15 +86,12 @@ def analyze_price_trends(market_data, window_sizes=[4, 8, 12], threshold=0.05):
                 
                 # Find periods of sustained growth above threshold
                 significant_trends = adjusted_growth_rates[adjusted_growth_rates > threshold]
-                print(f"Found {len(significant_trends)} significant trends")  #NEW
                 
                 if len(significant_trends) > 0:
-                    print(f"Creating trends dictionary for window {window}")  #NEW
                     trends[f'{window}w'] = {
                         'start_dates': significant_trends.index.tolist(),
                         'growth_rates': significant_trends.values.tolist()
                     }
-                    print(f"Successfully added trends for window {window}")  #NEW
             
             if trends:  
                 trend_analysis[ticker] = trends
@@ -144,15 +135,11 @@ def _validate_market_patterns(data, patterns, significance_level=0.05):
     }
     
     for ticker, trends in patterns.items():
-        print(f"\nValidating {ticker} with trends:", trends)
         ticker_data = data[ticker].pct_change().dropna()
         
-        # Keep the working trend periods code
         trend_periods = pd.Series(False, index=ticker_data.index)
-        print(f"Created trend_periods with index:", trend_periods.index[:5], "...")
         
         for window_data in trends.values():
-            print(f"Processing window data:", window_data)
             if '4w' in window_data:
                 for start_date in window_data['4w']['start_dates']:
                     trend_periods[start_date] = True
