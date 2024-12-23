@@ -85,14 +85,12 @@ def collect_market_data(contract_date_str):
     for name, ticker in TICKERS.items():
         try:
             stock = yf.Ticker(ticker)
-            # Force UTC timezone during download
             hist = stock.history(start=start_date, end=end_date, interval='1d')
             
-            # Convert to naive datetime immediately after download
+            # Convert to naive datetime
             if hasattr(hist.index, 'tz'):
                 hist.index = hist.index.tz_localize(None)
             
-            # Store the data
             data_dict[name] = hist['Close'].round(2)
             volume_dict[name] = hist['Volume']
             print(f"Downloaded {name} data")
@@ -138,7 +136,7 @@ def collect_market_data(contract_date_str):
         print(f"Successfully saved trading volumes to {volumes_filename}")
         
     except Exception as e:
-        # Provide helpful error information if saving fails
+        # Provide error information if saving fails
         print(f"Error saving CSV files: {str(e)}")
         print("Data was collected but could not be saved to files")
 
